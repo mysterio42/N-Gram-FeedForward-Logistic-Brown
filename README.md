@@ -29,9 +29,8 @@
 ## 1-Layer
 ## Logistic
 
-# Train the Bi-Gram model
 
-
+# Experiment 1 - Train the 1-Layer Bi-Gram model
 ## Training Procedure
 ![](figures/Figure_1.png)
 
@@ -41,5 +40,22 @@
 ![](figures/Figure_3.png)
 ## Extra Zoom In
 ![](figures/Figure_4.png)
+
+
+
+# Experiment 2 - Train the 2-Layer Bi-Gram model (Hidden Dim: 100)
+## Training Procedure
+![](figures/Figure_5.png)
+
+## Compare Logistic & Bigram models
+![](figures/Figure_6.png)
+## Medium Zoom In
+![](figures/Figure_7.png)
+
+
+
+
+
+
 
 # Under The Maintenance...
