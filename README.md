@@ -6,7 +6,6 @@
 │   ├── Figure_2.png
 │   ├── Figure_3.png
 │   └── Figure_4.png
-├── lehei.py
 ├── models
 │   ├── embedding.py
 │   ├── __init__.py
