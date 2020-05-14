@@ -47,7 +47,7 @@
 ## Training Procedure
 ![](figures/Figure_5.png)
 
-## Compare Logistic & Bigram models
+## Compare Neural Network & Bigram models
 ![](figures/Figure_6.png)
 ## Medium Zoom In
 ![](figures/Figure_7.png)
