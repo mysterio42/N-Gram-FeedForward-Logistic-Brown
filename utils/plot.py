@@ -18,10 +18,17 @@ def plot_smoothed_losses(bigram_losses, losses):
     plt.show()
 
 
-def plot_logistic_bigram(W_1,W_2, bigram_probs):
+def plot_logistic_bigram(bigram_probs,W=None,W_1W_2:tuple=None):
     plt.subplot(1, 2, 1)
-    plt.title("Neural Network Model")
-    plt.imshow(np.tanh(W_1).dot(W_2))
+
+    weight = W or W_1W_2
+    if isinstance(weight,tuple):
+        W_1,W_2 = weight
+        plt.title("Neural Network Model")
+        plt.imshow(np.tanh(W_1).dot(W_2))
+    else:
+        plt.title("Logistic Model")
+        plt.imshow(softmax(weight))
     plt.subplot(1, 2, 2)
     plt.title("Bigram Probs")
     plt.imshow(bigram_probs)

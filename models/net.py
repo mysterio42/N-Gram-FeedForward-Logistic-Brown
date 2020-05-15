@@ -80,7 +80,7 @@ class FeedForward():
 
         plot_losses(losses)
         plot_smoothed_losses(bigram_losses, losses)
-        plot_logistic_bigram(self.W, self.embedding.bigram_probs)
+        plot_logistic_bigram(self.embedding.bigram_probs, W=self.W)
 
 
 class FeedForward_Hidden():
@@ -159,4 +159,4 @@ class FeedForward_Hidden():
 
         plot_losses(losses)
         plot_smoothed_losses(bigram_losses, losses)
-        plot_logistic_bigram(self.W_1, self.W_2, self.embedding.bigram_probs)
+        plot_logistic_bigram(self.embedding.bigram_probs, W_1W_2=(self.W_1, self.W_2))
