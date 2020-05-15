@@ -107,10 +107,26 @@ class FeedForward_Hidden():
         features[np.arange(n), sentence[:n]] = 1
         labels[np.arange(n), sentence[sep:]] = 1
 
-        return features, labels
+        return features, labels, n
+
+    def _features_labels_faster(self, sentence, n_gram):
+        sentence = [self.embedding.start_idx] + sentence + [self.embedding.end_idx]
+
+        sep = n_gram - 1
+        n = len(sentence) - sep
+
+        features = sentence[:n]
+        labels = sentence[sep:]
+
+        return features, labels, n
 
     def _forward(self, features):
         hidden = np.tanh(features.dot(self.W_1))
+        preds = softmax(hidden.dot(self.W_2))
+        return hidden, preds
+
+    def _forward_faster(self, features):
+        hidden = np.tanh(self.W_1[features])
         preds = softmax(hidden.dot(self.W_2))
         return hidden, preds
 
@@ -119,14 +135,34 @@ class FeedForward_Hidden():
         dhidden = (preds - labels).dot(self.W_2.T) * (1 - hidden * hidden)
         self.W_1 -= lr * features.T.dot(dhidden)
 
-    def _step(self, preds, labels, losses):
-        loss = -np.sum(labels * np.log(preds)) / len(preds) - 1
+    def _backward_faster(self, features, labels, hidden, preds, lr, n):
+        doutput = preds
+        doutput[np.arange(n), labels] -= 1
+        self.W_2 -= lr * hidden.T.dot(doutput)
+        dhidden = (doutput).dot(self.W_2.T) * (1 - hidden * hidden)
+        i = 0
+        for w in features:
+            self.W_1[w] -= lr * dhidden[i]
+            i += 1
+
+    def _step(self, preds, labels, losses, n):
+        loss = -np.sum(labels * np.log(preds)) / n
         losses.append(loss)
         return loss
 
-    def _bigram_forward(self, features, labels, bigram_losses):
+    def _step_faster(self, preds, labels, losses, n):
+        loss = -np.sum(np.log(preds[np.arange(n), labels])) / n
+        losses.append(loss)
+        return loss
+
+    def _bigram_forward(self, features, labels, bigram_losses, n):
         bigram_predictions = softmax(features.dot(np.log(self.embedding.bigram_probs)))
-        bigram_loss = -np.sum(labels * np.log(bigram_predictions)) / len(bigram_predictions)
+        bigram_loss = -np.sum(labels * np.log(bigram_predictions)) / n
+        bigram_losses.append(bigram_loss)
+
+    def _bigram_forward_faster(self, features, labels, bigram_losses, n):
+        bigram_predictions = softmax(self.embedding.bigram_probs[features])
+        bigram_loss = -np.sum(np.log(bigram_predictions[np.arange(n), labels])) / n
         bigram_losses.append(bigram_loss)
 
     def train(self, epochs=1, lr=1e-2, n_gram=2):
@@ -142,15 +178,15 @@ class FeedForward_Hidden():
 
             for idx, sentence in enumerate(self.embedding.embed_sentences):
 
-                features, labels = self._features_labels(sentence, n_gram)
+                features, labels, n = self._features_labels_faster(sentence, n_gram)
 
-                hidden, preds = self._forward(features)
+                hidden, preds = self._forward_faster(features)
 
-                self._backward(features, labels, hidden, preds, lr)
+                loss = self._step_faster(preds, labels, losses, n)
 
-                loss = self._step(preds, labels, losses)
+                self._backward_faster(features, labels, hidden, preds, lr, n)
 
-                self._bigram_forward(features, labels, bigram_losses)
+                self._bigram_forward_faster(features, labels, bigram_losses, n)
 
                 if idx % 10 == 0:
                     print(f'epoch:{epoch} sentence: {idx}/{len(self.embedding.embed_sentences)} loss: {loss}')
